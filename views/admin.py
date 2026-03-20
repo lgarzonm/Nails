@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta
 import streamlit as st
 
 from config import DAYS_AHEAD, PROVIDER_ID
+from services.whatsapp import notify_booking_confirmed, notify_booking_rejected
 from db.database import (
     add_blocked_window,
     delete_blocked_window,
@@ -75,11 +76,27 @@ def _tab_pending():
             c1, c2 = st.columns(2)
             if c1.button("✅ Confirmar", key=f"confirm_{b['id']}", use_container_width=True):
                 update_booking_status(b["id"], "confirmed")
-                st.success("Cita confirmada.")
+                result = notify_booking_confirmed(b)
+                if result.sent:
+                    st.success("Cita confirmada · cliente notificado por WhatsApp ✅")
+                else:
+                    st.success("Cita confirmada.")
+                    if result.wa_link:
+                        st.markdown(
+                            f"[📲 Notificar al cliente por WhatsApp]({result.wa_link})"
+                        )
                 st.rerun()
             if c2.button("❌ Rechazar", key=f"reject_{b['id']}", use_container_width=True):
                 update_booking_status(b["id"], "rejected")
-                st.warning("Cita rechazada.")
+                result = notify_booking_rejected(b)
+                if result.sent:
+                    st.warning("Cita rechazada · cliente notificado por WhatsApp ✅")
+                else:
+                    st.warning("Cita rechazada.")
+                    if result.wa_link:
+                        st.markdown(
+                            f"[📲 Notificar al cliente por WhatsApp]({result.wa_link})"
+                        )
                 st.rerun()
 
 

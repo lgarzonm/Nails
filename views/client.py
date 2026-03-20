@@ -17,6 +17,7 @@ import streamlit as st
 from config import DAYS_AHEAD, PROVIDER_ID
 from db.database import create_booking, get_active_services, init_db
 from services.availability import get_available_slots
+from services.whatsapp import notify_new_booking
 
 PHONE_RE = re.compile(r"^\+?[\d\s\-]{7,15}$")
 
@@ -108,6 +109,20 @@ def render():
             duration_minutes=selected_service["duration_minutes"],
             notes=notes.strip(),
         )
+
+        # Notify provider about the new request
+        result = notify_new_booking({
+            "id": booking_id,
+            "client_name": client_name.strip(),
+            "client_phone": client_phone.strip(),
+            "service_name": selected_service_name,
+            "requested_datetime": selected_slot,
+        })
+        if not result.sent and result.wa_link:
+            st.info(
+                "Avisa a la proveedora sobre tu solicitud: "
+                f"[Abrir WhatsApp]({result.wa_link})"
+            )
 
         st.success(
             f"¡Solicitud enviada! 🎉  \n"
