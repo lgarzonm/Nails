@@ -67,8 +67,14 @@ def render():
         st.info("No hay horarios disponibles para esa fecha. Por favor elige otro día.")
         return
 
-    # Display time portion only for readability
-    slot_labels = [s.split(" ")[1] for s in slots]
+    # Display time in 12h AM/PM format for readability
+    def _to_12h(slot: str) -> str:
+        h, m = map(int, slot.split(" ")[1].split(":"))
+        period = "AM" if h < 12 else "PM"
+        h12 = h % 12 or 12
+        return f"{h12}:{m:02d} {period}"
+
+    slot_labels = [_to_12h(s) for s in slots]
     slot_map = dict(zip(slot_labels, slots))
 
     selected_label = st.selectbox("Hora disponible", slot_labels)
@@ -127,7 +133,7 @@ def render():
         st.success(
             f"¡Solicitud enviada! 🎉  \n"
             f"**Servicio:** {selected_service_name}  \n"
-            f"**Fecha y hora:** {selected_slot}  \n"
+            f"**Fecha y hora:** {selected_slot.split()[0]} {_to_12h(selected_slot)}  \n"
             f"Te confirmaremos por WhatsApp en breve. (Ref. #{booking_id})"
         )
         st.balloons()

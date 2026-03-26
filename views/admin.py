@@ -137,6 +137,12 @@ def _tab_availability():
     rules = get_availability_rules(PROVIDER_ID)
     rule_by_day = {r["day_of_week"]: r for r in rules if r["is_active"]}
 
+    def _fmt(t: str) -> str:
+        h, m = map(int, t.split(":"))
+        period = "AM" if h < 12 else "PM"
+        h12 = h % 12 or 12
+        return f"{h12}:{m:02d} {period}"
+
     st.markdown("#### Horarios actuales")
     if not rule_by_day:
         st.info("Aún no hay horarios configurados.")
@@ -147,7 +153,7 @@ def _tab_availability():
             next_date = today + timedelta(days=days_ahead)
             date_label = next_date.strftime("%-d %b")
             col1, col2, col3 = st.columns([3, 3, 1])
-            col1.write(f"**{DAY_NAMES[dow]}** {date_label}  ·  {rule['start_time']} – {rule['end_time']}")
+            col1.write(f"**{DAY_NAMES[dow]}** {date_label}  ·  {_fmt(rule['start_time'])} – {_fmt(rule['end_time'])}")
             if col3.button("Eliminar", key=f"del_rule_{rule['id']}"):
                 deactivate_availability_rule(rule["id"])
                 st.rerun()
@@ -190,7 +196,7 @@ def _tab_blocked():
     else:
         for w in windows:
             col1, col2 = st.columns([5, 1])
-            label = f"**{w['date']}** · {w['start_time']} – {w['end_time']}"
+            label = f"**{w['date']}** · {_fmt(w['start_time'])} – {_fmt(w['end_time'])}"
             if w["reason"]:
                 label += f" · _{w['reason']}_"
             col1.markdown(label)
