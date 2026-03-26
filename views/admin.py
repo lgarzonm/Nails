@@ -141,9 +141,13 @@ def _tab_availability():
     if not rule_by_day:
         st.info("Aún no hay horarios configurados.")
     else:
+        today = date.today()
         for dow, rule in sorted(rule_by_day.items()):
+            days_ahead = (dow - today.weekday()) % 7
+            next_date = today + timedelta(days=days_ahead)
+            date_label = next_date.strftime("%-d %b")
             col1, col2, col3 = st.columns([3, 3, 1])
-            col1.write(f"**{DAY_NAMES[dow]}**  {rule['start_time']} – {rule['end_time']}")
+            col1.write(f"**{DAY_NAMES[dow]}** {date_label}  ·  {rule['start_time']} – {rule['end_time']}")
             if col3.button("Eliminar", key=f"del_rule_{rule['id']}"):
                 deactivate_availability_rule(rule["id"])
                 st.rerun()
