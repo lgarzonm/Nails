@@ -136,4 +136,10 @@ def render():
             f"**Fecha y hora:** {selected_slot.split()[0]} {_to_12h(selected_slot)}  \n"
             f"Te confirmaremos por WhatsApp en breve. (Ref. #{booking_id})"
         )
+        st.info(
+            "📲 **¿Quieres recibir la confirmación por WhatsApp?**  \n"
+            "Toca el botón de abajo — se abrirá WhatsApp con el mensaje listo, "
+            "solo presiona **Enviar** y listo.  \n\n"
+            "[👉 Activar notificaciones WhatsApp](https://wa.me/14155238886?text=join%20grass-related)"
+        )
         st.balloons()
